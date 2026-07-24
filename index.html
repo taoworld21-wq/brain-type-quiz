@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4뇌 인간형 판별 설문</title>
+<script>
+  (function(){
+    if(!document.querySelector('meta[name="viewport"]')){
+      var meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0';
+      document.head.appendChild(meta);
+    }
+  })();
+</script>
+<style>
+  :root{
+    --bg: #ffffff;
+    --panel: #fbfaf8;
+    --panel-line: #e4e0d8;
+    --ink: #262420;
+    --ink-dim: #837c70;
+
+    --c-seong: #c8532f;   /* 성뇌형 - 본능/생명력 */
+    --c-bok:   #b8863a;   /* 복뇌형 - 행동/실행력 */
+    --c-sim:   #a83f63;   /* 심뇌형 - 감정/공감력 */
+    --c-du:    #3f5b8f;   /* 두뇌형 - 사고/분석력 */
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family: "Pretendard","Noto Sans KR","Malgun Gothic",-apple-system,sans-serif;
+    padding:32px 16px 64px;
+    line-height:1.6;
+  }
+
+  .wrap{ max-width:720px; margin:0 auto; }
+
+  .head{ text-align:center; margin-bottom:36px; }
+  .head .eyebrow{
+    font-size:15px; letter-spacing:0.2em; text-transform:uppercase;
+    color:var(--ink-dim); margin-bottom:10px;
+  }
+  .head h1{
+    font-family:"Nanum Myeongjo","Noto Serif KR",serif;
+    font-size:40px; margin:0 0 10px;
+    letter-spacing:-0.01em;
+  }
+  .head p{ color:var(--ink-dim); font-size:18px; margin:0; }
+
+  .section{
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:14px;
+    padding:22px 22px 8px;
+    margin-bottom:18px;
+    border-left:4px solid var(--accent);
+    position:relative;
+    overflow:hidden;
+  }
+  .section::after{
+    content:"";
+    position:absolute; right:-30px; top:-30px;
+    width:120px; height:120px; border-radius:50%;
+    background:var(--accent); opacity:0.06;
+  }
+
+  .section h2{
+    font-family:"Nanum Myeongjo","Noto Serif KR",serif;
+    font-size:25px; margin:0 0 6px;
+    color:var(--accent);
+    display:flex; align-items:center; gap:8px;
+  }
+  .section h2 .dot{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--accent); display:inline-block;
+  }
+  .section .sub{
+    font-size:16px; color:var(--ink-dim); margin:0 0 18px;
+  }
+
+  label.item{
+    display:flex; gap:14px; align-items:flex-start;
+    padding:16px 4px;
+    border-top:1px solid var(--panel-line);
+    cursor:pointer;
+    font-size:19px;
+    line-height:1.5;
+    position:relative;
+  }
+  .section .item:first-of-type{ border-top:none; }
+
+  label.item input[type="checkbox"]{
+    position:absolute;
+    opacity:0;
+    width:26px;
+    height:26px;
+    margin:0;
+    top:16px;
+    left:4px;
+    cursor:pointer;
+    z-index:2;
+  }
+  label.item .box{
+    width:26px; height:26px;
+    min-width:26px;
+    margin-top:2px;
+    border:2px solid var(--ink-dim);
+    border-radius:7px;
+    background:transparent;
+    position:relative;
+    flex-shrink:0;
+    transition:all .15s ease;
+  }
+  label.item input:checked ~ .box{
+    background:var(--accent);
+    border-color:var(--accent);
+  }
+  label.item input:checked ~ .box::after{
+    content:"";
+    position:absolute;
+    left:8px; top:3px;
+    width:7px; height:13px;
+    border:solid var(--bg);
+    border-width:0 3px 3px 0;
+    transform:rotate(40deg);
+  }
+  label.item .tag{
+    color:var(--accent);
+    font-weight:600;
+    margin-right:2px;
+  }
+  label.item span.txt{ color:var(--ink); }
+
+  .submit-row{
+    text-align:center;
+    margin:32px 0 8px;
+  }
+  button#submitBtn{
+    background:var(--ink);
+    color:var(--bg);
+    border:none;
+    font-size:20px;
+    font-weight:700;
+    padding:18px 48px;
+    border-radius:999px;
+    cursor:pointer;
+    letter-spacing:0.02em;
+    transition:transform .12s ease, opacity .12s ease;
+  }
+  button#submitBtn:hover{ transform:translateY(-1px); opacity:0.92; }
+  button#submitBtn:active{ transform:translateY(0); }
+
+  .hint{
+    text-align:center; font-size:15px; color:var(--ink-dim); margin-top:12px;
+  }
+
+  /* ---- result ---- */
+  #result{
+    display:none;
+    margin-top:36px;
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:16px;
+    padding:28px 24px 26px;
+  }
+  #result.show{ display:block; animation:rise .35s ease; }
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .result-title{
+    text-align:center; font-size:15px; letter-spacing:0.2em;
+    text-transform:uppercase; color:var(--ink-dim); margin-bottom:8px;
+  }
+  .result-main{
+    text-align:center;
+    font-family:"Nanum Myeongjo","Noto Serif KR",serif;
+    font-size:32px;
+    margin:0 0 6px;
+  }
+  .result-main .primary-color{ }
+  .result-sub{
+    text-align:center; color:var(--ink-dim); font-size:17px; margin-bottom:28px;
+  }
+
+  .bars{
+    display:flex; flex-direction:column; gap:14px;
+    margin-bottom:6px;
+  }
+  .bar-row{
+    display:grid;
+    grid-template-columns:78px 1fr 34px;
+    align-items:center;
+    gap:14px;
+    font-size:16px;
+  }
+  .bar-row .label{ color:var(--ink-dim); text-align:right; }
+  .bar-row .label b{ color:var(--ink); display:block; font-size:17px; }
+  .bar-track{
+    background:#eeece5;
+    border-radius:999px;
+    height:14px;
+    overflow:hidden;
+    border:1px solid var(--panel-line);
+  }
+  .bar-fill{
+    height:100%;
+    width:0%;
+    border-radius:999px;
+    transition:width .6s cubic-bezier(.2,.8,.3,1);
+  }
+  .bar-row .count{ color:var(--ink-dim); text-align:left; }
+
+  .result-note{
+    margin-top:24px;
+    padding-top:20px;
+    border-top:1px solid var(--panel-line);
+    font-size:16px;
+    color:var(--ink-dim);
+    text-align:center;
+  }
+
+  .reset-row{ text-align:center; margin-top:18px; }
+  #resetBtn{
+    background:none; border:1px solid var(--panel-line);
+    color:var(--ink-dim); font-size:15px;
+    padding:10px 22px; border-radius:999px; cursor:pointer;
+  }
+  #resetBtn:hover{ color:var(--ink); border-color:var(--ink-dim); }
+
+  @media(max-width:480px){
+    .bar-row{ grid-template-columns:72px 1fr 34px; font-size:14px; }
+    .head h1{ font-size:30px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head" style="text-align:center;">
+    <div class="eyebrow" style="text-align:center;">4 Brain Type Test</div>
+    <h1 style="text-align:center;">4뇌 인간형 판별 설문</h1>
+    <p style="text-align:center;">나에게 해당하는 항목을 모두 체크한 뒤, 아래 버튼을 눌러 결과를 확인하세요.</p>
+  </div>
+
+  <!-- 성뇌형 -->
+  <div class="section" style="--accent:var(--c-seong)" data-type="성뇌형">
+    <h2><span class="dot"></span>성뇌형 — 본능·생명력 중심</h2>
+    <p class="sub">욕구와 즐거움, 넘치는 생명력이 중심이 되는 유형</p>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">심리</span><span class="txt">욕구에 꾸밈없이 솔직하다. 지금 이 순간의 즐거움에 무게를 둔다. 때로 불씨가 먼저 튀듯 충동이 앞선다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">신체</span><span class="txt">골반과 성기관, 신장이 발달해 있으며 하체가 강인하다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">장점</span><span class="txt">천성이 밝고, 넘쳐흐르는 생명력이 온몸에 가득하다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">선호</span><span class="txt">감각의 즐거움, 살을 맞댄 친밀함, 자연과 직접 살을 부비는 일.</span></span></label>
+  </div>
+
+  <!-- 복뇌형 -->
+  <div class="section" style="--accent:var(--c-bok)" data-type="복뇌형">
+    <h2><span class="dot"></span>복뇌형 — 행동·실행력 중심</h2>
+    <p class="sub">결단과 추진력, 몸으로 배우는 실행이 중심이 되는 유형</p>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">심리</span><span class="txt">결단이 칼날처럼 빠르고, 곧장 몸으로 옮긴다. 생각보다 실천이 앞선다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">신체</span><span class="txt">장과 소화기관이 발달되어 있으며 근육질의 체구인 경우가 많다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">장점</span><span class="txt">밀고 나가는 추진력과 어깨에 짊어진 책임감이 굳세다. 머리가 아니라 온몸으로 배운다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">선호</span><span class="txt">운동, 섭생 관리, 신체적 활동, 실질적 성과 창출.</span></span></label>
+  </div>
+
+  <!-- 심뇌형 -->
+  <div class="section" style="--accent:var(--c-sim)" data-type="심뇌형">
+    <h2><span class="dot"></span>심뇌형 — 감정·공감력 중심</h2>
+    <p class="sub">정서와 공감, 사람과의 교감이 중심이 되는 유형</p>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">심리</span><span class="txt">논리보다 정서가 먼저 가슴에서 일어난다. 자리의 공기를 한순간에 알아챈다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">신체</span><span class="txt">심장과 순환계가 발달해 있고, 흉부 호흡이 깊다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">장점</span><span class="txt">예술의 감수성과 공감의 결이 풍부해 사람과 사람 사이에서 환히 빛난다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">선호</span><span class="txt">음악, 예술, 깊은 정서적 대화, 교감의 순간.</span></span></label>
+  </div>
+
+  <!-- 두뇌형 -->
+  <div class="section" style="--accent:var(--c-du)" data-type="두뇌형">
+    <h2><span class="dot"></span>두뇌형 — 사고·분석력 중심</h2>
+    <p class="sub">계획과 분석, 개념과 구조를 다루는 것이 중심이 되는 유형</p>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">심리</span><span class="txt">매사를 가지런히 계획하고, 이성의 저울이 먼저 움직인다. 원인과 결과의 실을 끝까지 따라간다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">신체</span><span class="txt">뇌와 신경계가 발달해 있고, 눈빛이 예리하고 맑다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">장점</span><span class="txt">캐묻는 탐구심과 끝을 보려는 성취욕이 강하다. 개념과 구조를 다루는 솜씨가 빼어나다.</span></span></label>
+    <label class="item"><input type="checkbox"><span class="box"></span><span><span class="tag">선호</span><span class="txt">독서, 연구, 전략 수립, 목표 추구, 자아실현.</span></span></label>
+  </div>
+
+  <div class="submit-row" style="text-align:center;">
+    <button id="submitBtn">결과 확인하기</button>
+    <div class="hint" style="text-align:center;">각 항목당 1점, 4개 유형 중 가장 높은 점수가 주(主) 인간형입니다.</div>
+  </div>
+
+  <div id="result">
+    <div class="result-title" style="text-align:center;">Result</div>
+    <div class="result-main" id="resultMain" style="text-align:center;"></div>
+    <div class="result-sub" id="resultSub" style="text-align:center;"></div>
+
+    <div class="bars" id="bars"></div>
+
+    <div class="result-note" id="resultNote" style="text-align:center;"></div>
+
+    <div class="reset-row" style="text-align:center;">
+      <button id="resetBtn">다시 체크하기</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const TYPES = [
+    { key:"성뇌형", full:"성뇌형 — 본능·생명력", color:"var(--c-seong)" },
+    { key:"복뇌형", full:"복뇌형 — 행동·실행력", color:"var(--c-bok)" },
+    { key:"심뇌형", full:"심뇌형 — 감정·공감력", color:"var(--c-sim)" },
+    { key:"두뇌형", full:"두뇌형 — 사고·분석력", color:"var(--c-du)" }
+  ];
+
+  document.getElementById('submitBtn').addEventListener('click', function(){
+    const scores = {};
+    TYPES.forEach(t => scores[t.key] = 0);
+
+    document.querySelectorAll('.section').forEach(sec => {
+      const type = sec.getAttribute('data-type');
+      const checked = sec.querySelectorAll('input[type="checkbox"]:checked').length;
+      scores[type] = checked;
+    });
+
+    const totalChecked = Object.values(scores).reduce((a,b)=>a+b,0);
+    if(totalChecked === 0){
+      alert('최소 한 개 이상의 항목을 체크해주세요.');
+      return;
+    }
+
+    // sort types by score desc
+    const ranked = TYPES.slice().sort((a,b) => scores[b.key]-scores[a.key]);
+    const maxScore = scores[ranked[0].key];
+    const primaries = ranked.filter(t => scores[t.key] === maxScore);
+
+    let mainText, subText;
+    if(primaries.length > 1){
+      mainText = primaries.map(t=>t.key.replace(/형$/, '')).join(' · ') + ' 복합형';
+      subText = '두 유형 이상에서 동일하게 가장 높은 점수가 나왔습니다. 여러 기질이 고르게 발달한 우주적 개성 타입입니다.';
+    } else {
+      const main = ranked[0];
+      const secondScore = ranked[1] ? scores[ranked[1].key] : -1;
+      const seconds = ranked.filter((t,i) => i>0 && scores[t.key] === secondScore && secondScore > 0);
+      mainText = '주 인간형: ' + main.key;
+      if(seconds.length && secondScore > 0){
+        subText = '부 인간형: ' + seconds.map(t=>t.key).join(' · ');
+      } else {
+        subText = '뚜렷한 부 인간형은 나타나지 않았습니다.';
+      }
+    }
+
+    document.getElementById('resultMain').textContent = mainText;
+    document.getElementById('resultSub').textContent = subText;
+
+    const barsEl = document.getElementById('bars');
+    barsEl.innerHTML = '';
+    TYPES.forEach(t => {
+      const score = scores[t.key];
+      const pct = Math.round((score/4)*100);
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+      row.innerHTML = `
+        <div class="label"><b style="color:${t.color}">${t.key}</b></div>
+        <div class="bar-track"><div class="bar-fill" style="background:${t.color}"></div></div>
+        <div class="count">${score}/4</div>
+      `;
+      barsEl.appendChild(row);
+      requestAnimationFrame(() => {
+        row.querySelector('.bar-fill').style.width = pct + '%';
+      });
+    });
+
+    document.getElementById('resultNote').textContent =
+      '인간형이 겹칠수록 다재다능하고 열린 개성, 즉 우주적 개성을 지니게 됩니다.';
+
+    const result = document.getElementById('result');
+    result.classList.add('show');
+    result.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.getElementById('result').classList.remove('show');
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+</script>
+</body>
+</html>
