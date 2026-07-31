@@ -302,8 +302,6 @@
 
     <div class="bars" id="bars"></div>
 
-    <div class="result-note" id="resultNote" style="text-align:center;"></div>
-
     <div class="reset-row" style="text-align:center;">
       <button id="resetBtn">다시 체크하기</button>
     </div>
@@ -343,7 +341,7 @@
     let mainText, subText;
     if(primaries.length > 1){
       mainText = primaries.map(t=>t.key.replace(/형$/, '')).join(' · ') + ' 복합형';
-      subText = '두 유형 이상에서 동일하게 가장 높은 점수가 나왔습니다. 여러 기질이 고르게 발달한 우주적 개성 타입입니다.';
+      subText = '여러 기질이 고르게 발달할수록 우주적 개성 타입에 가깝습니다.';
     } else {
       const main = ranked[0];
       const secondScore = ranked[1] ? scores[ranked[1].key] : -1;
@@ -376,9 +374,6 @@
         row.querySelector('.bar-fill').style.width = pct + '%';
       });
     });
-
-    document.getElementById('resultNote').textContent =
-      '인간형이 겹칠수록 다재다능하고 열린 개성, 즉 우주적 개성을 지니게 됩니다.';
 
     const result = document.getElementById('result');
     result.classList.add('show');
